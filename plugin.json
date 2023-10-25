@@ -12,5 +12,12 @@
   "sourceUrl": "",
   "donateUrl": "",
   "changelogUrl": "",
-  "modules": []
+  "modules": [
+    {
+      "slug": "SSG",
+      "name": "SSG",
+      "description": "Smooth & Stepped Generator",
+      "tags": []
+    }
+  ]
 }
