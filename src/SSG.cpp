@@ -3,28 +3,28 @@
 
 struct SSG : Module {
 	enum ParamId {
-		SMOOTHRATEVCPARAM_PARAM,
-		STEPPEDRATEVCPARAM_PARAM,
-		SMOOTHRATEINPUT_PARAM,
-		STEPPEDRATEINPUT_PARAM,
+		SMOOTHRATEVC_PARAM,
+		STEPPEDRATEVC_PARAM,
+		SMOOTHRATE_PARAM,
+		STEPPEDRATE_PARAM,
 		PARAMS_LEN
 	};
 	enum InputId {
-		SMOOTHINPUT_INPUT,
-		STEPPEDINPUT_INPUT,
-		SMOOTHRATEVCINPUT_INPUT,
-		STEPPEDRATEVCINPUT_INPUT,
-		SMOOTHHOLDINPUT_INPUT,
-		STEPPEDSAMPLEINPUT_INPUT,
+		SMOOTH_INPUT,
+		STEPPED_INPUT,
+		SMOOTHRATEVC_INPUT,
+		STEPPEDRATEVC_INPUT,
+		SMOOTHHOLD_INPUT,
+		STEPPEDSAMPLE_INPUT,
 		INPUTS_LEN
 	};
 	enum OutputId {
-		SMOOTHOUTPUT_OUTPUT,
-		STEPPEDOUTPUT_OUTPUT,
-		SMOOTH_CYCLE_OUT_OUTPUT,
-		STEPPEDCYCLEOUTPUT_OUTPUT,
-		COUPLEROUTPUT_OUTPUT,
-		COUPLEHOTOUTPUT_OUTPUT,
+		SMOOTH_OUTPUT,
+		STEPPED_OUTPUT,
+		SMOOTHCYCLE_OUTPUT,
+		STEPPEDCYCLE_OUTPUT,
+		COUPLER_OUTPUT,
+		COUPLERHOT_OUTPUT,
 		OUTPUTS_LEN
 	};
 	enum LightId {
@@ -33,22 +33,22 @@ struct SSG : Module {
 
 	SSG() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-		configParam(SMOOTHRATEVCPARAM_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(STEPPEDRATEVCPARAM_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(SMOOTHRATEINPUT_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(STEPPEDRATEINPUT_PARAM, 0.f, 1.f, 0.f, "");
-		configInput(SMOOTHINPUT_INPUT, "");
-		configInput(STEPPEDINPUT_INPUT, "");
-		configInput(SMOOTHRATEVCINPUT_INPUT, "");
-		configInput(STEPPEDRATEVCINPUT_INPUT, "");
-		configInput(SMOOTHHOLDINPUT_INPUT, "");
-		configInput(STEPPEDSAMPLEINPUT_INPUT, "");
-		configOutput(SMOOTHOUTPUT_OUTPUT, "");
-		configOutput(STEPPEDOUTPUT_OUTPUT, "");
-		configOutput(SMOOTH_CYCLE_OUT_OUTPUT, "");
-		configOutput(STEPPEDCYCLEOUTPUT_OUTPUT, "");
-		configOutput(COUPLEROUTPUT_OUTPUT, "");
-		configOutput(COUPLEHOTOUTPUT_OUTPUT, "");
+		configParam(SMOOTHRATEVC_PARAM, 0.f, 1.f, 0.f, "");
+		configParam(STEPPEDRATEVC_PARAM, 0.f, 1.f, 0.f, "");
+		configParam(SMOOTHRATE_PARAM, 0.f, 1.f, 0.f, "");
+		configParam(STEPPEDRATE_PARAM, 0.f, 1.f, 0.f, "");
+		configInput(SMOOTH_INPUT, "");
+		configInput(STEPPED_INPUT, "");
+		configInput(SMOOTHRATEVC_INPUT, "");
+		configInput(STEPPEDRATEVC_INPUT, "");
+		configInput(SMOOTHHOLD_INPUT, "");
+		configInput(STEPPEDSAMPLE_INPUT, "");
+		configOutput(SMOOTH_OUTPUT, "");
+		configOutput(STEPPED_OUTPUT, "");
+		configOutput(SMOOTHCYCLE_OUTPUT, "");
+		configOutput(STEPPEDCYCLE_OUTPUT, "");
+		configOutput(COUPLER_OUTPUT, "");
+		configOutput(COUPLERHOT_OUTPUT, "");
 	}
 
 	void process(const ProcessArgs& args) override {
@@ -66,24 +66,24 @@ struct SSGWidget : ModuleWidget {
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(11.43, 64.26)), module, SSG::SMOOTHRATEVCPARAM_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(57.15, 64.26)), module, SSG::STEPPEDRATEVCPARAM_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(11.43, 85.68)), module, SSG::SMOOTHRATEINPUT_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(57.15, 85.68)), module, SSG::STEPPEDRATEINPUT_PARAM));
+		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(11.43, 64.26)), module, SSG::SMOOTHRATEVC_PARAM));
+		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(57.15, 64.26)), module, SSG::STEPPEDRATEVC_PARAM));
+		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(11.43, 85.68)), module, SSG::SMOOTHRATE_PARAM));
+		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(57.15, 85.68)), module, SSG::STEPPEDRATE_PARAM));
 
-		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(11.43, 21.42)), module, SSG::SMOOTHINPUT_INPUT));
-		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(57.15, 21.42)), module, SSG::STEPPEDINPUT_INPUT));
-		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(11.43, 42.84)), module, SSG::SMOOTHRATEVCINPUT_INPUT));
-		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(57.15, 42.84)), module, SSG::STEPPEDRATEVCINPUT_INPUT));
-		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(34.29, 64.26)), module, SSG::SMOOTHHOLDINPUT_INPUT));
-		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(80.01, 64.26)), module, SSG::STEPPEDSAMPLEINPUT_INPUT));
+		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(11.43, 21.42)), module, SSG::SMOOTH_INPUT));
+		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(57.15, 21.42)), module, SSG::STEPPED_INPUT));
+		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(11.43, 42.84)), module, SSG::SMOOTHRATEVC_INPUT));
+		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(57.15, 42.84)), module, SSG::STEPPEDRATEVC_INPUT));
+		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(34.29, 64.26)), module, SSG::SMOOTHHOLD_INPUT));
+		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(80.01, 64.26)), module, SSG::STEPPEDSAMPLE_INPUT));
 
-		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(34.283, 21.468)), module, SSG::SMOOTHOUTPUT_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(80.01, 21.42)), module, SSG::STEPPEDOUTPUT_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(34.29, 42.84)), module, SSG::SMOOTH_CYCLE_OUT_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(80.01, 42.84)), module, SSG::STEPPEDCYCLEOUTPUT_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(34.29, 107.1)), module, SSG::COUPLEROUTPUT_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(57.15, 107.1)), module, SSG::COUPLEHOTOUTPUT_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(34.283, 21.468)), module, SSG::SMOOTH_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(80.01, 21.42)), module, SSG::STEPPED_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(34.29, 42.84)), module, SSG::SMOOTHCYCLE_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(80.01, 42.84)), module, SSG::STEPPEDCYCLE_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(34.29, 107.1)), module, SSG::COUPLER_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(57.15, 107.1)), module, SSG::COUPLERHOT_OUTPUT));
 	}
 };
 
