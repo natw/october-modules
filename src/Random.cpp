@@ -81,11 +81,11 @@ struct RandomWidget : ModuleWidget {
 		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(80.01, 85.68)), module, Random::STOREDEVEN_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(80.01, 107.1)), module, Random::STOREDDIST_OUTPUT));
 
-		addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(83.397, 17.92)), module, Random::FLUC_LIGHT));
-		addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(83.51, 39.34)), module, Random::QUANTLIN_LIGHT));
-		addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(83.51, 60.76)), module, Random::QUANTEXP_LIGHT));
-		addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(83.51, 82.18)), module, Random::STOREDEVEN_LIGHT));
-		addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(83.51, 103.6)), module, Random::STOREDDIST_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(84.897, 16.42)), module, Random::FLUC_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(85.01, 37.84)), module, Random::QUANTLIN_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(85.01, 59.26)), module, Random::QUANTEXP_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(85.01, 80.68)), module, Random::STOREDEVEN_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(85.01, 102.1)), module, Random::STOREDDIST_LIGHT));
 	}
 };
 
