@@ -10,3 +10,4 @@ extern Plugin *pluginInstance;
 // extern Model* modelMyModule;
 
 extern Model *modelSSG;
+extern Model *modelRandom;

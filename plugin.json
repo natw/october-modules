@@ -18,6 +18,14 @@
       "name": "SSG",
       "description": "Smooth & Stepped Generator",
       "tags": []
+    },
+    {
+      "slug": "Random",
+      "name": "Random",
+      "description": "Random voltage generator (Source of Uncertainty)",
+      "tags": [
+        "random"
+      ]
     }
   ]
 }
