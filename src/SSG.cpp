@@ -106,31 +106,31 @@ struct SSGWidget : ModuleWidget {
     addParam(createParamCentered<RoundBlackKnob>(
         mm2px(Vec(57.15, 85.68)), module, SSG::STEPPEDRATE_PARAM));
 
-    addInput(createInputCentered<PJ301MPort>(mm2px(Vec(11.43, 21.42)), module,
-                                             SSG::SMOOTH_INPUT));
-    addInput(createInputCentered<PJ301MPort>(mm2px(Vec(57.15, 21.42)), module,
-                                             SSG::STEPPED_INPUT));
-    addInput(createInputCentered<PJ301MPort>(mm2px(Vec(11.43, 42.84)), module,
-                                             SSG::SMOOTHRATEVC_INPUT));
-    addInput(createInputCentered<PJ301MPort>(mm2px(Vec(57.15, 42.84)), module,
-                                             SSG::STEPPEDRATEVC_INPUT));
-    addInput(createInputCentered<PJ301MPort>(mm2px(Vec(34.29, 64.26)), module,
-                                             SSG::SMOOTHHOLD_INPUT));
-    addInput(createInputCentered<PJ301MPort>(mm2px(Vec(80.01, 64.26)), module,
-                                             SSG::STEPPEDSAMPLE_INPUT));
+    addInput(createInputCentered<BlackBananaPort>(mm2px(Vec(11.43, 21.42)),
+                                                  module, SSG::SMOOTH_INPUT));
+    addInput(createInputCentered<BlackBananaPort>(mm2px(Vec(57.15, 21.42)),
+                                                  module, SSG::STEPPED_INPUT));
+    addInput(createInputCentered<BlueBananaPort>(
+        mm2px(Vec(11.43, 42.84)), module, SSG::SMOOTHRATEVC_INPUT));
+    addInput(createInputCentered<BlueBananaPort>(
+        mm2px(Vec(57.15, 42.84)), module, SSG::STEPPEDRATEVC_INPUT));
+    addInput(createInputCentered<BlueBananaPort>(
+        mm2px(Vec(34.29, 64.26)), module, SSG::SMOOTHHOLD_INPUT));
+    addInput(createInputCentered<BlueBananaPort>(
+        mm2px(Vec(80.01, 64.26)), module, SSG::STEPPEDSAMPLE_INPUT));
 
-    addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(34.283, 21.468)),
-                                               module, SSG::SMOOTH_OUTPUT));
-    addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(80.01, 21.42)), module,
-                                               SSG::STEPPED_OUTPUT));
-    addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(34.29, 42.84)), module,
-                                               SSG::SMOOTHCYCLE_OUTPUT));
-    addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(80.01, 42.84)), module,
-                                               SSG::STEPPEDCYCLE_OUTPUT));
-    addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(34.29, 107.1)), module,
-                                               SSG::COUPLER_OUTPUT));
-    addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(57.15, 107.1)), module,
-                                               SSG::COUPLERHOT_OUTPUT));
+    addOutput(createOutputCentered<BlueBananaPort>(mm2px(Vec(34.283, 21.468)),
+                                                   module, SSG::SMOOTH_OUTPUT));
+    addOutput(createOutputCentered<BlueBananaPort>(
+        mm2px(Vec(80.01, 21.42)), module, SSG::STEPPED_OUTPUT));
+    addOutput(createOutputCentered<RedBananaPort>(
+        mm2px(Vec(34.29, 42.84)), module, SSG::SMOOTHCYCLE_OUTPUT));
+    addOutput(createOutputCentered<RedBananaPort>(
+        mm2px(Vec(80.01, 42.84)), module, SSG::STEPPEDCYCLE_OUTPUT));
+    addOutput(createOutputCentered<RedBananaPort>(mm2px(Vec(34.29, 107.1)),
+                                                  module, SSG::COUPLER_OUTPUT));
+    addOutput(createOutputCentered<OrangeBananaPort>(
+        mm2px(Vec(57.15, 107.1)), module, SSG::COUPLERHOT_OUTPUT));
   }
 };
 
