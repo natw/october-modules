@@ -1,5 +1,7 @@
 #include "plugin.hpp"
 
+using dsp::SlewLimiter;
+
 struct SSG : Module {
   enum ParamId {
     SMOOTHRATEVC_PARAM,
@@ -28,6 +30,8 @@ struct SSG : Module {
   };
   enum LightId { LIGHTS_LEN };
 
+  using volts = float;
+
   SSG() {
     config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 
@@ -36,6 +40,7 @@ struct SSG : Module {
                 "Stepped Rate VC Attenuator");
     configParam(SMOOTHRATE_PARAM, 0.F, 1.F, 0.F, "Smooth Rate");
     configParam(STEPPEDRATE_PARAM, 0.F, 1.F, 0.F, "Stepped Rate");
+
     configInput(SMOOTH_INPUT, "Smooth Input");
     configInput(STEPPED_INPUT, "Stepped Input");
     configInput(SMOOTHRATEVC_INPUT, "Smooth Rate VC");
@@ -51,9 +56,31 @@ struct SSG : Module {
     configOutput(COUPLERHOT_OUTPUT, "Coupler (-10V / 10V)");
   }
 
+  volts previousOutput{};
+  SlewLimiter limiter;
+
   void process(const ProcessArgs &args) override {
-    float slew = params[SMOOTHRATE_PARAM].getValue();
+    // The absolute min and max allowed slew rates (in V/s, I hope)
+    /* const float slewMax = 1000.F; */
+    /* const float slewMin = 0.F; */
+
+    // rate knob all the way left means slow, no change allowed. (0 V/s)
+    // all the way right means fast, all changes allowed (infinite V/s?)
+    // is that "a lot of slew" or a little?
+    float slewParam = params[SMOOTHRATE_PARAM].getValue();
+    // rate vc input expects between -5V and 5V, scaled to 0-1.
+    // then added to param knob value to get final param.
+    // So the knob all the way left
+    /* volts slewInput = inputs[SMOOTHRATEVC_INPUT].getVoltage(); */
+    /* float slewInputAttenFactor = params[SMOOTHRATEVC_PARAM].getValue(); */
+    //
+    /* float slew = slewParam + (slewInput * slewInputAttenFactor); */
+
     float smoothInput = inputs[SMOOTH_INPUT].getVoltage();
+
+    limiter.setRiseFall(slewParam * 75000, slewParam * 75000);
+    float smoothVal = limiter.process(args.sampleTime, smoothInput);
+    outputs[SMOOTH_OUTPUT].setVoltage(smoothVal);
   }
 };
 
