@@ -30,8 +30,6 @@ struct SSG : Module {
   };
   enum LightId { LIGHTS_LEN };
 
-  using volts = float;
-
   SSG() {
     config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 
@@ -40,7 +38,7 @@ struct SSG : Module {
     configParam(STEPPEDRATEVC_PARAM, 0.F, 1.F, 0.5F,
                 "Stepped Rate VC Attenuator", "%", 0.F, 100.F);
     configParam(SMOOTHRATE_PARAM, 0.F, 1000.F, 0.F, "Smooth Rate", "mV/s");
-    configParam(STEPPEDRATE_PARAM, 0.F, 1.F, 0.F, "Stepped Rate", "mV/s");
+    configParam(STEPPEDRATE_PARAM, 0.F, 1000.F, 0.F, "Stepped Rate", "mV/s");
 
     configInput(SMOOTH_INPUT, "Smooth Input");
     configInput(STEPPED_INPUT, "Stepped Input");
@@ -57,8 +55,10 @@ struct SSG : Module {
     configOutput(COUPLERHOT_OUTPUT, "Coupler (-10V / 10V)");
   }
 
-  volts previousSmooth{};
+  float previousSmooth{};
+  float previousStepped{};
   SlewLimiter limiter;
+  dsp::SchmittTrigger steppedTrigger;
 
   void process(const ProcessArgs &args) override {
     processSmooth(args);
@@ -73,11 +73,11 @@ struct SSG : Module {
     }
 
     float slewParam = params[SMOOTHRATE_PARAM].getValue();
-
     float slewCV = inputs[SMOOTHRATEVC_INPUT].getVoltage();
     float slewAttenFactor = params[SMOOTHRATEVC_PARAM].getValue();
     float slewExtra = slewCV * slewAttenFactor * 200.F;
     float slew = (slewParam + slewExtra) * args.sampleTime;
+
     float smoothInput = inputs[SMOOTH_INPUT].getVoltage();
     float newSmooth =
         previousSmooth + math::clamp(smoothInput - previousSmooth, -slew, slew);
@@ -86,7 +86,25 @@ struct SSG : Module {
     outputs[SMOOTH_OUTPUT].setVoltage(newSmooth);
   }
 
-  void processStepped(const ProcessArgs &args) {}
+  void processStepped(const ProcessArgs &args) {
+    bool steppedTriggered = steppedTrigger.process(
+        inputs[STEPPEDSAMPLE_INPUT].getVoltage(), 0.1F, 2.F);
+
+    float slewParam = params[STEPPEDRATE_PARAM].getValue();
+    float slewCV = inputs[STEPPEDRATEVC_INPUT].getVoltage();
+    float slewAttenFactor = params[STEPPEDRATEVC_PARAM].getValue();
+    float slewAdd = slewCV * slewAttenFactor * 200.F;
+    float slew = (slewParam + slewAdd) * args.sampleTime;
+
+    float steppedInput = inputs[STEPPED_INPUT].getVoltage();
+    float newStepped = previousStepped +
+                       math::clamp(steppedInput - previousStepped, -slew, slew);
+
+    previousStepped = newStepped;
+    if (steppedTriggered) {
+      outputs[STEPPED_OUTPUT].setVoltage(newStepped);
+    }
+  }
 
   void updateCoupler(const ProcessArgs & /*args*/) {
     float smooth = outputs[SMOOTH_OUTPUT].getVoltage();
