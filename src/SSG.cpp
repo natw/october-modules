@@ -35,11 +35,12 @@ struct SSG : Module {
   SSG() {
     config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 
-    configParam(SMOOTHRATEVC_PARAM, 0.F, 1.F, 0.F, "Smooth Rate VC Attenuator");
-    configParam(STEPPEDRATEVC_PARAM, 0.F, 1.F, 0.F,
-                "Stepped Rate VC Attenuator");
-    configParam(SMOOTHRATE_PARAM, 0.F, 1.F, 0.F, "Smooth Rate");
-    configParam(STEPPEDRATE_PARAM, 0.F, 1.F, 0.F, "Stepped Rate");
+    configParam(SMOOTHRATEVC_PARAM, 0.F, 1.F, 0.5F, "Smooth Rate VC Attenuator",
+                "%", 0.F, 100.F);
+    configParam(STEPPEDRATEVC_PARAM, 0.F, 1.F, 0.5F,
+                "Stepped Rate VC Attenuator", "%", 0.F, 100.F);
+    configParam(SMOOTHRATE_PARAM, 0.F, 1000.F, 0.F, "Smooth Rate", "mV/s");
+    configParam(STEPPEDRATE_PARAM, 0.F, 1.F, 0.F, "Stepped Rate", "mV/s");
 
     configInput(SMOOTH_INPUT, "Smooth Input");
     configInput(STEPPED_INPUT, "Stepped Input");
@@ -56,31 +57,51 @@ struct SSG : Module {
     configOutput(COUPLERHOT_OUTPUT, "Coupler (-10V / 10V)");
   }
 
-  volts previousOutput{};
+  volts previousSmooth{};
   SlewLimiter limiter;
 
   void process(const ProcessArgs &args) override {
-    // The absolute min and max allowed slew rates (in V/s, I hope)
-    /* const float slewMax = 1000.F; */
-    /* const float slewMin = 0.F; */
+    processSmooth(args);
+    processStepped(args);
+    updateCoupler(args);
+  }
 
-    // rate knob all the way left means slow, no change allowed. (0 V/s)
-    // all the way right means fast, all changes allowed (infinite V/s?)
-    // is that "a lot of slew" or a little?
+  void processSmooth(const ProcessArgs &args) {
+    float holdGate = inputs[SMOOTHHOLD_INPUT].getVoltage();
+    if (holdGate > 1.F) {
+      return;
+    }
+
     float slewParam = params[SMOOTHRATE_PARAM].getValue();
-    // rate vc input expects between -5V and 5V, scaled to 0-1.
-    // then added to param knob value to get final param.
-    // So the knob all the way left
-    /* volts slewInput = inputs[SMOOTHRATEVC_INPUT].getVoltage(); */
-    /* float slewInputAttenFactor = params[SMOOTHRATEVC_PARAM].getValue(); */
-    //
-    /* float slew = slewParam + (slewInput * slewInputAttenFactor); */
 
+    float slewCV = inputs[SMOOTHRATEVC_INPUT].getVoltage();
+    float slewAttenFactor = params[SMOOTHRATEVC_PARAM].getValue();
+    float slewExtra = slewCV * slewAttenFactor * 200.F;
+    float slew = (slewParam + slewExtra) * args.sampleTime;
     float smoothInput = inputs[SMOOTH_INPUT].getVoltage();
+    float newSmooth =
+        previousSmooth + math::clamp(smoothInput - previousSmooth, -slew, slew);
 
-    limiter.setRiseFall(slewParam * 75000, slewParam * 75000);
-    float smoothVal = limiter.process(args.sampleTime, smoothInput);
-    outputs[SMOOTH_OUTPUT].setVoltage(smoothVal);
+    previousSmooth = newSmooth;
+    outputs[SMOOTH_OUTPUT].setVoltage(newSmooth);
+  }
+
+  void processStepped(const ProcessArgs &args) {}
+
+  void updateCoupler(const ProcessArgs & /*args*/) {
+    float smooth = outputs[SMOOTH_OUTPUT].getVoltage();
+    float stepped = outputs[STEPPED_OUTPUT].getVoltage();
+
+    if (stepped > smooth) {
+      outputs[COUPLER_OUTPUT].setVoltage(5.F);
+      outputs[COUPLERHOT_OUTPUT].setVoltage(10.F);
+    } else if (smooth > stepped) {
+      outputs[COUPLER_OUTPUT].setVoltage(0.F);
+      outputs[COUPLERHOT_OUTPUT].setVoltage(-10.F);
+    } else {
+      outputs[COUPLER_OUTPUT].setVoltage(0.F);
+      outputs[COUPLERHOT_OUTPUT].setVoltage(0.F);
+    }
   }
 };
 
