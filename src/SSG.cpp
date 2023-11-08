@@ -53,12 +53,15 @@ struct SSG : Module {
     configOutput(STEPPEDCYCLE_OUTPUT, "Stepped Cycle Output");
     configOutput(COUPLER_OUTPUT, "Coupler (0V / 5V)");
     configOutput(COUPLERHOT_OUTPUT, "Coupler (-10V / 10V)");
+
+    outputs[SMOOTHCYCLE_OUTPUT].setVoltage(-10.F);
   }
 
   float previousSmooth{};
   float previousStepped{};
   SlewLimiter limiter;
   dsp::SchmittTrigger steppedTrigger;
+  dsp::PulseGenerator smoothCyclePulse;
 
   void process(const ProcessArgs &args) override {
     processSmooth(args);
@@ -82,8 +85,19 @@ struct SSG : Module {
     float newSmooth =
         previousSmooth + math::clamp(smoothInput - previousSmooth, -slew, slew);
 
+    if (newSmooth == smoothInput) {
+      smoothCyclePulse.trigger();
+    }
+
     previousSmooth = newSmooth;
     outputs[SMOOTH_OUTPUT].setVoltage(newSmooth);
+
+    bool cycleHigh = smoothCyclePulse.process(args.sampleTime);
+    if (cycleHigh) {
+      outputs[SMOOTHCYCLE_OUTPUT].setVoltage(10.F);
+    } else {
+      outputs[SMOOTHCYCLE_OUTPUT].setVoltage(-10.F);
+    }
   }
 
   void processStepped(const ProcessArgs &args) {
