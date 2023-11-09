@@ -30,7 +30,8 @@ struct SSG : Module {
     COUPLERHOT_OUTPUT,
     OUTPUTS_LEN
   };
-  enum LightId { LIGHTS_LEN };
+
+  enum LightId { ENUMS(SMOOTH_LIGHT, 2), ENUMS(STEPPED_LIGHT, 2), LIGHTS_LEN };
 
   enum SmoothRateSwitchStates {
     SMOOTH_LO,
@@ -78,6 +79,7 @@ struct SSG : Module {
   SlewLimiter limiter;
   dsp::SchmittTrigger steppedTrigger;
   dsp::SchmittTrigger smoothCycleTrigger;
+  dsp::SchmittTrigger steppedCycleTrigger;
 
   void process(const ProcessArgs &args) override {
     processSmooth(args);
@@ -105,7 +107,10 @@ struct SSG : Module {
     float holdGate = inputs[SMOOTHHOLD_INPUT].getVoltage();
     if (holdGate <= 1.F) {
       outputs[SMOOTH_OUTPUT].setVoltage(newSmooth);
-      smoothCycleTrigger.process(newSmooth, 2.F, 10.F);
+      float b = newSmooth / 10.F;
+      lights[SMOOTH_LIGHT].setSmoothBrightness(b, args.sampleTime);
+      lights[SMOOTH_LIGHT + 1].setSmoothBrightness(-b, args.sampleTime);
+      smoothCycleTrigger.process(newSmooth, 2.F, 5.F);
       if (smoothCycleTrigger.isHigh()) {
         outputs[SMOOTHCYCLE_OUTPUT].setVoltage(0.F);
       } else {
@@ -134,6 +139,16 @@ struct SSG : Module {
     previousStepped = newStepped;
     if (steppedTriggered) {
       outputs[STEPPED_OUTPUT].setVoltage(newStepped);
+      float b = newStepped / 10.F;
+      lights[STEPPED_LIGHT].setSmoothBrightness(b, args.sampleTime);
+      lights[STEPPED_LIGHT + 1].setSmoothBrightness(-b, args.sampleTime);
+
+      steppedCycleTrigger.process(newStepped, 2.F, 5.F);
+      if (steppedCycleTrigger.isHigh()) {
+        outputs[STEPPEDCYCLE_OUTPUT].setVoltage(0.F);
+      } else {
+        outputs[STEPPEDCYCLE_OUTPUT].setVoltage(10.F);
+      }
     }
   }
 
@@ -206,6 +221,11 @@ struct SSGWidget : ModuleWidget {
                                                   module, SSG::COUPLER_OUTPUT));
     addOutput(createOutputCentered<OrangeBananaPort>(
         mm2px(Vec(57.15, 107.1)), module, SSG::COUPLERHOT_OUTPUT));
+
+    addChild(createLightCentered<MediumLight<GreenRedLight>>(
+        mm2px(Vec(39.29, 16.42)), module, SSG::SMOOTH_LIGHT));
+    addChild(createLightCentered<MediumLight<GreenRedLight>>(
+        mm2px(Vec(85.01, 16.42)), module, SSG::STEPPED_LIGHT));
   }
 };
 
