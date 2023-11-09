@@ -37,7 +37,8 @@ struct SSG : Module {
                 "%", 0.F, 100.F);
     configParam(STEPPEDRATEVC_PARAM, 0.F, 1.F, 0.5F,
                 "Stepped Rate VC Attenuator", "%", 0.F, 100.F);
-    configParam(SMOOTHRATE_PARAM, 0.F, 1000.F, 0.F, "Smooth Rate", "mV/s");
+    configParam(SMOOTHRATE_PARAM, 0.F, 100000.F, 0.F, "Smooth Rate", "V/s", 0.F,
+                .001F);
     configParam(STEPPEDRATE_PARAM, 0.F, 1000.F, 0.F, "Stepped Rate", "mV/s");
 
     configInput(SMOOTH_INPUT, "Smooth Input");
@@ -53,15 +54,13 @@ struct SSG : Module {
     configOutput(STEPPEDCYCLE_OUTPUT, "Stepped Cycle Output");
     configOutput(COUPLER_OUTPUT, "Coupler (0V / 5V)");
     configOutput(COUPLERHOT_OUTPUT, "Coupler (-10V / 10V)");
-
-    outputs[SMOOTHCYCLE_OUTPUT].setVoltage(-10.F);
   }
 
   float previousSmooth{};
   float previousStepped{};
   SlewLimiter limiter;
   dsp::SchmittTrigger steppedTrigger;
-  dsp::PulseGenerator smoothCyclePulse;
+  dsp::SchmittTrigger smoothCycleTrigger;
 
   void process(const ProcessArgs &args) override {
     processSmooth(args);
@@ -78,25 +77,22 @@ struct SSG : Module {
     float slewParam = params[SMOOTHRATE_PARAM].getValue();
     float slewCV = inputs[SMOOTHRATEVC_INPUT].getVoltage();
     float slewAttenFactor = params[SMOOTHRATEVC_PARAM].getValue();
-    float slewExtra = slewCV * slewAttenFactor * 200.F;
+    float slewExtra = slewCV * slewAttenFactor * 20000.F;
     float slew = (slewParam + slewExtra) * args.sampleTime;
 
     float smoothInput = inputs[SMOOTH_INPUT].getVoltage();
     float newSmooth =
         previousSmooth + math::clamp(smoothInput - previousSmooth, -slew, slew);
 
-    if (newSmooth == smoothInput) {
-      smoothCyclePulse.trigger();
-    }
-
     previousSmooth = newSmooth;
     outputs[SMOOTH_OUTPUT].setVoltage(newSmooth);
 
-    bool cycleHigh = smoothCyclePulse.process(args.sampleTime);
-    if (cycleHigh) {
-      outputs[SMOOTHCYCLE_OUTPUT].setVoltage(10.F);
+    smoothCycleTrigger.process(newSmooth, 2.F, 10.F);
+
+    if (smoothCycleTrigger.isHigh()) {
+      outputs[SMOOTHCYCLE_OUTPUT].setVoltage(0.F);
     } else {
-      outputs[SMOOTHCYCLE_OUTPUT].setVoltage(-10.F);
+      outputs[SMOOTHCYCLE_OUTPUT].setVoltage(10.F);
     }
   }
 
