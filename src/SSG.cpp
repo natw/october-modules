@@ -110,7 +110,7 @@ struct SSG : Module {
       float b = newSmooth / 10.F;
       lights[SMOOTH_LIGHT].setSmoothBrightness(b, args.sampleTime);
       lights[SMOOTH_LIGHT + 1].setSmoothBrightness(-b, args.sampleTime);
-      smoothCycleTrigger.process(newSmooth, 2.F, 5.F);
+      smoothCycleTrigger.process(newSmooth, 1.F, 4.8F);
       if (smoothCycleTrigger.isHigh()) {
         outputs[SMOOTHCYCLE_OUTPUT].setVoltage(0.F);
       } else {
@@ -126,10 +126,10 @@ struct SSG : Module {
     float slewParam = params[STEPPEDRATE_PARAM].getValue();
     float slewCV = inputs[STEPPEDRATEVC_INPUT].getVoltage();
     float slewAttenFactor = params[STEPPEDRATEVC_PARAM].getValue();
-    float slewAdd = slewCV * slewAttenFactor * 200.F;
-    float slew = (slewParam + slewAdd) * args.sampleTime;
+    float slewAdd = slewCV * slewAttenFactor;
+    float slew = (slewParam + slewAdd) * args.sampleTime * 0.05F;
     if (params[STEPPEDRATEHILO_PARAM].getValue() == STEPPED_HI) {
-      slew *= 100;
+      slew *= 10;
     }
 
     float steppedInput = inputs[STEPPED_INPUT].getVoltage();
@@ -143,7 +143,7 @@ struct SSG : Module {
       lights[STEPPED_LIGHT].setSmoothBrightness(b, args.sampleTime);
       lights[STEPPED_LIGHT + 1].setSmoothBrightness(-b, args.sampleTime);
 
-      steppedCycleTrigger.process(newStepped, 2.F, 5.F);
+      steppedCycleTrigger.process(newStepped, 1.F, 4.8F);
       if (steppedCycleTrigger.isHigh()) {
         outputs[STEPPEDCYCLE_OUTPUT].setVoltage(0.F);
       } else {
