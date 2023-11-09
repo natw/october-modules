@@ -49,12 +49,13 @@ struct SSG : Module {
                 "%", 0.F, 100.F);
     configParam(STEPPEDRATEVC_PARAM, 0.F, 1.F, 0.5F,
                 "Stepped Rate VC Attenuator", "%", 0.F, 100.F);
-    configParam(SMOOTHRATE_PARAM, 0.F, 100000.F, 0.F, "Smooth Rate", "V/s", 0.F,
+    configParam(SMOOTHRATE_PARAM, 0.F, 1000.F, 0.F, "Smooth Rate", "", 0.F,
                 .001F);
-    configParam(STEPPEDRATE_PARAM, 0.F, 1000.F, 0.F, "Stepped Rate", "mV/s");
-    configSwitch(SMOOTHRATEHILO_PARAM, SMOOTH_LO, SMOOTH_HI, SMOOTH_LO, "Range",
+    configParam(STEPPEDRATE_PARAM, 0.F, 1000.F, 0.F, "Stepped Rate", "", 0.F,
+                .001F);
+    configSwitch(SMOOTHRATEHILO_PARAM, SMOOTH_LO, SMOOTH_HI, SMOOTH_HI, "Range",
                  {"Low", "High"});
-    configSwitch(STEPPEDRATEHILO_PARAM, STEPPED_LO, STEPPED_HI, STEPPED_LO,
+    configSwitch(STEPPEDRATEHILO_PARAM, STEPPED_LO, STEPPED_HI, STEPPED_HI,
                  "Range", {"Low", "High"});
 
     configInput(SMOOTH_INPUT, "Smooth Input");
@@ -88,8 +89,12 @@ struct SSG : Module {
     float slewParam = params[SMOOTHRATE_PARAM].getValue();
     float slewCV = inputs[SMOOTHRATEVC_INPUT].getVoltage();
     float slewAttenFactor = params[SMOOTHRATEVC_PARAM].getValue();
-    float slewExtra = slewCV * slewAttenFactor * 20000.F;
+    float slewExtra = slewCV * slewAttenFactor * 200.F;
+
     float slew = (slewParam + slewExtra) * args.sampleTime;
+    if (params[SMOOTHRATEHILO_PARAM].getValue() == SMOOTH_HI) {
+      slew *= 100.F;
+    }
 
     float smoothInput = inputs[SMOOTH_INPUT].getVoltage();
     float newSmooth =
@@ -118,6 +123,9 @@ struct SSG : Module {
     float slewAttenFactor = params[STEPPEDRATEVC_PARAM].getValue();
     float slewAdd = slewCV * slewAttenFactor * 200.F;
     float slew = (slewParam + slewAdd) * args.sampleTime;
+    if (params[STEPPEDRATEHILO_PARAM].getValue() == STEPPED_HI) {
+      slew *= 100;
+    }
 
     float steppedInput = inputs[STEPPED_INPUT].getVoltage();
     float newStepped = previousStepped +
