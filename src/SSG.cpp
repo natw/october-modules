@@ -7,7 +7,9 @@ struct SSG : Module {
     SMOOTHRATEVC_PARAM,
     STEPPEDRATEVC_PARAM,
     SMOOTHRATE_PARAM,
+    SMOOTHRATEHILO_PARAM,
     STEPPEDRATE_PARAM,
+    STEPPEDRATEHILO_PARAM,
     PARAMS_LEN
   };
   enum InputId {
@@ -30,6 +32,16 @@ struct SSG : Module {
   };
   enum LightId { LIGHTS_LEN };
 
+  enum SmoothRateSwitchStates {
+    SMOOTH_LO,
+    SMOOTH_HI,
+  };
+
+  enum SteppedRateSwitchStates {
+    STEPPED_LO,
+    STEPPED_HI,
+  };
+
   SSG() {
     config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 
@@ -40,6 +52,10 @@ struct SSG : Module {
     configParam(SMOOTHRATE_PARAM, 0.F, 100000.F, 0.F, "Smooth Rate", "V/s", 0.F,
                 .001F);
     configParam(STEPPEDRATE_PARAM, 0.F, 1000.F, 0.F, "Stepped Rate", "mV/s");
+    configSwitch(SMOOTHRATEHILO_PARAM, SMOOTH_LO, SMOOTH_HI, SMOOTH_LO, "Range",
+                 {"Low", "High"});
+    configSwitch(STEPPEDRATEHILO_PARAM, STEPPED_LO, STEPPED_HI, STEPPED_LO,
+                 "Range", {"Low", "High"});
 
     configInput(SMOOTH_INPUT, "Smooth Input");
     configInput(STEPPED_INPUT, "Stepped Input");
@@ -151,6 +167,11 @@ struct SSGWidget : ModuleWidget {
         mm2px(Vec(11.43, 85.68)), module, SSG::SMOOTHRATE_PARAM));
     addParam(createParamCentered<RoundBlackKnob>(
         mm2px(Vec(57.15, 85.68)), module, SSG::STEPPEDRATE_PARAM));
+
+    addParam(createParamCentered<NKK2>(mm2px(Vec(34.29, 85.68)), module,
+                                       SSG::SMOOTHRATEHILO_PARAM));
+    addParam(createParamCentered<NKK2>(mm2px(Vec(80.01, 85.68)), module,
+                                       SSG::STEPPEDRATEHILO_PARAM));
 
     addInput(createInputCentered<BlackBananaPort>(mm2px(Vec(11.43, 21.42)),
                                                   module, SSG::SMOOTH_INPUT));
