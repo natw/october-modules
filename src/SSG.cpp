@@ -93,7 +93,7 @@ struct SSG : Module {
     float slewAttenFactor = params[SMOOTHRATEVC_PARAM].getValue();
     float slewExtra = slewCV * slewAttenFactor * 200.F;
 
-    float slew = (slewParam + slewExtra) * args.sampleTime;
+    float slew = (slewParam + slewExtra) * args.sampleTime * 0.1;
     if (params[SMOOTHRATEHILO_PARAM].getValue() == SMOOTH_HI) {
       slew *= 100.F;
     }
