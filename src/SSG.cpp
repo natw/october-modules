@@ -69,11 +69,6 @@ struct SSG : Module {
   }
 
   void processSmooth(const ProcessArgs &args) {
-    float holdGate = inputs[SMOOTHHOLD_INPUT].getVoltage();
-    if (holdGate > 1.F) {
-      return;
-    }
-
     float slewParam = params[SMOOTHRATE_PARAM].getValue();
     float slewCV = inputs[SMOOTHRATEVC_INPUT].getVoltage();
     float slewAttenFactor = params[SMOOTHRATEVC_PARAM].getValue();
@@ -85,14 +80,16 @@ struct SSG : Module {
         previousSmooth + math::clamp(smoothInput - previousSmooth, -slew, slew);
 
     previousSmooth = newSmooth;
-    outputs[SMOOTH_OUTPUT].setVoltage(newSmooth);
 
-    smoothCycleTrigger.process(newSmooth, 2.F, 10.F);
-
-    if (smoothCycleTrigger.isHigh()) {
-      outputs[SMOOTHCYCLE_OUTPUT].setVoltage(0.F);
-    } else {
-      outputs[SMOOTHCYCLE_OUTPUT].setVoltage(10.F);
+    float holdGate = inputs[SMOOTHHOLD_INPUT].getVoltage();
+    if (holdGate <= 1.F) {
+      outputs[SMOOTH_OUTPUT].setVoltage(newSmooth);
+      smoothCycleTrigger.process(newSmooth, 2.F, 10.F);
+      if (smoothCycleTrigger.isHigh()) {
+        outputs[SMOOTHCYCLE_OUTPUT].setVoltage(0.F);
+      } else {
+        outputs[SMOOTHCYCLE_OUTPUT].setVoltage(10.F);
+      }
     }
   }
 
