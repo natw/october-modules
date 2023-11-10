@@ -57,9 +57,20 @@ struct Random : Module {
   dsp::IIRFilter<2, 2> redFilter;
   float triPhase = 0.F;
   const float triangleFreq = 100.F;
+  // this is the frequency of the clock for the FRV section's
+  // internal sample & hold
+  const float flucClockFreq = 12.F;
+  Clock frvClock;
+  dsp::RCFilter flucTriFilter;
 
   void process(const ProcessArgs& args) override {
     float noisyTriangle = generateNoisyTriangle(args);
+    if (frvClock.process(args.sampleTime, flucClockFreq)) {
+      /* flucTriFilter.setCutoffFreq(flucClockFreq / args.sampleRate); */
+      flucTriFilter.setCutoffFreq(1000.F / args.sampleRate);
+      flucTriFilter.process(noisyTriangle);
+    }
+    outputs[FLUC_OUTPUT].setVoltage(flucTriFilter.lowpass());
   }
 
   // generate the "noisy triangle" that is sampled to generate more "musical"
@@ -72,12 +83,12 @@ struct Random : Module {
     float redNoise = redFilter.process(random::normal());
     redNoise *= 25.F;
     float freq = triangleFreq + redNoise * 100;
-    advancePhase(freq, args.sampleTime);
+    advanceTrianglePhase(freq, args.sampleTime);
     float y = 5 * abs((triPhase * 2) - 1);
     return y;
   }
 
-  void advancePhase(float freq, float sampleTime) {
+  void advanceTrianglePhase(float freq, float sampleTime) {
     triPhase += freq * sampleTime;
     triPhase -= std::floor(triPhase);
   }

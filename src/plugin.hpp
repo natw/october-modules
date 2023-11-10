@@ -50,3 +50,17 @@ struct NKK2 : app::SvgSwitch {
     addFrame(Svg::load(asset::system("res/ComponentLibrary/NKK_2.svg")));
   }
 };
+
+struct Clock {
+  dsp::Timer timer;
+  // takes a time since last sample and frequency in Hz,
+  // and returns true if the clock triggers
+  bool process(float sampleTime, float freq) {
+    timer.process(sampleTime);
+    if (timer.getTime() >= 1 / freq) {
+      timer.reset();
+      return true;
+    }
+    return false;
+  }
+};
