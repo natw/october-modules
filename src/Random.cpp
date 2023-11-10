@@ -47,9 +47,40 @@ struct Random : Module {
     configOutput(QUANTEXP_OUTPUT, "");
     configOutput(STOREDEVEN_OUTPUT, "");
     configOutput(STOREDDIST_OUTPUT, "");
+
+    // these coefficients are lifted from the Fundamental plugin's Noise module
+    const float b[] = {0.00425611, 0.00425611};
+    const float a[] = {-0.99148778};
+    redFilter.setCoefficients(b, a);
   }
 
-  void process(const ProcessArgs& args) override {}
+  dsp::IIRFilter<2, 2> redFilter;
+  float triPhase = 0.F;
+  const float triangleFreq = 100.F;
+
+  void process(const ProcessArgs& args) override {
+    float noisyTriangle = generateNoisyTriangle(args);
+  }
+
+  // generate the "noisy triangle" that is sampled to generate more "musical"
+  // random numbers this strategy, like everything else about this module, is
+  // copied from the Buchla 266
+  //
+  // any constants here were arrived at experimentally
+  // to get a nice looking wave
+  auto generateNoisyTriangle(const ProcessArgs& args) -> float {
+    float redNoise = redFilter.process(random::normal());
+    redNoise *= 25.F;
+    float freq = triangleFreq + redNoise * 100;
+    advancePhase(freq, args.sampleTime);
+    float y = 5 * abs((triPhase * 2) - 1);
+    return y;
+  }
+
+  void advancePhase(float freq, float sampleTime) {
+    triPhase += freq * sampleTime;
+    triPhase -= std::floor(triPhase);
+  }
 };
 
 struct RandomWidget : ModuleWidget {
