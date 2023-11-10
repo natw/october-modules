@@ -7,9 +7,7 @@ struct SSG : Module {
     SMOOTHRATEVC_PARAM,
     STEPPEDRATEVC_PARAM,
     SMOOTHRATE_PARAM,
-    SMOOTHRATEHILO_PARAM,
     STEPPEDRATE_PARAM,
-    STEPPEDRATEHILO_PARAM,
     PARAMS_LEN
   };
   enum InputId {
@@ -46,18 +44,14 @@ struct SSG : Module {
   SSG() {
     config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 
-    configParam(SMOOTHRATEVC_PARAM, 0.F, 1.F, 0.5F, "Smooth Rate VC Attenuator",
+    configParam(SMOOTHRATEVC_PARAM, 0.F, 1.F, 0.0F, "Smooth Rate VC Attenuator",
                 "%", 0.F, 100.F);
-    configParam(STEPPEDRATEVC_PARAM, 0.F, 1.F, 0.5F,
+    configParam(STEPPEDRATEVC_PARAM, 0.F, 1.F, 0.0F,
                 "Stepped Rate VC Attenuator", "%", 0.F, 100.F);
-    configParam(SMOOTHRATE_PARAM, 0.F, 1000.F, 0.F, "Smooth Rate", "", 0.F,
-                .001F);
-    configParam(STEPPEDRATE_PARAM, 0.F, 1000.F, 0.F, "Stepped Rate", "", 0.F,
-                .001F);
-    configSwitch(SMOOTHRATEHILO_PARAM, SMOOTH_LO, SMOOTH_HI, SMOOTH_HI, "Range",
-                 {"Low", "High"});
-    configSwitch(STEPPEDRATEHILO_PARAM, STEPPED_LO, STEPPED_HI, STEPPED_HI,
-                 "Range", {"Low", "High"});
+    configParam(SMOOTHRATE_PARAM, 0.F, 100.F, 0.F, "Smooth Rate", "", 0.F,
+                .01F);
+    configParam(STEPPEDRATE_PARAM, 0.F, 100.F, 0.F, "Stepped Rate", "", 0.F,
+                .01F);
 
     configInput(SMOOTH_INPUT, "Smooth Input");
     configInput(STEPPED_INPUT, "Stepped Input");
@@ -91,12 +85,10 @@ struct SSG : Module {
     float slewParam = params[SMOOTHRATE_PARAM].getValue();
     float slewCV = inputs[SMOOTHRATEVC_INPUT].getVoltage();
     float slewAttenFactor = params[SMOOTHRATEVC_PARAM].getValue();
-    float slewExtra = slewCV * slewAttenFactor * 200.F;
+    slewCV *= slewAttenFactor;
 
-    float slew = (slewParam + slewExtra) * args.sampleTime * 0.1;
-    if (params[SMOOTHRATEHILO_PARAM].getValue() == SMOOTH_HI) {
-      slew *= 100.F;
-    }
+    float slew = dsp::exp2_taylor5(slewParam + slewCV) / std::exp2(40.F) *
+                 args.sampleTime;
 
     float smoothInput = inputs[SMOOTH_INPUT].getVoltage();
     float newSmooth =
@@ -126,11 +118,10 @@ struct SSG : Module {
     float slewParam = params[STEPPEDRATE_PARAM].getValue();
     float slewCV = inputs[STEPPEDRATEVC_INPUT].getVoltage();
     float slewAttenFactor = params[STEPPEDRATEVC_PARAM].getValue();
-    float slewAdd = slewCV * slewAttenFactor;
-    float slew = (slewParam + slewAdd) * args.sampleTime * 0.05F;
-    if (params[STEPPEDRATEHILO_PARAM].getValue() == STEPPED_HI) {
-      slew *= 10;
-    }
+    slewCV *= slewAttenFactor;
+
+    float slew = dsp::exp2_taylor5(slewParam + slewCV) / std::exp2(40.F) *
+                 args.sampleTime;
 
     float steppedInput = inputs[STEPPED_INPUT].getVoltage();
     float newStepped = previousStepped +
@@ -190,11 +181,6 @@ struct SSGWidget : ModuleWidget {
         mm2px(Vec(11.43, 85.68)), module, SSG::SMOOTHRATE_PARAM));
     addParam(createParamCentered<RoundBlackKnob>(
         mm2px(Vec(57.15, 85.68)), module, SSG::STEPPEDRATE_PARAM));
-
-    addParam(createParamCentered<NKK2>(mm2px(Vec(34.29, 85.68)), module,
-                                       SSG::SMOOTHRATEHILO_PARAM));
-    addParam(createParamCentered<NKK2>(mm2px(Vec(80.01, 85.68)), module,
-                                       SSG::STEPPEDRATEHILO_PARAM));
 
     addInput(createInputCentered<BlackBananaPort>(mm2px(Vec(11.43, 21.42)),
                                                   module, SSG::SMOOTH_INPUT));
