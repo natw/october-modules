@@ -17,3 +17,4 @@ Checks: |
   -cert-err58-cpp,
   -misc-non-private-member-variables-in-classes,
   -hicpp-avoid-c-arrays,
+  -bugprone-easily-swappable-parameters,
