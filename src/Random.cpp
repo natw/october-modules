@@ -1,3 +1,5 @@
+#include "frv.hpp"
+#include "noisy_triangle.hpp"
 #include "plugin.hpp"
 
 struct Random : Module {
@@ -53,43 +55,13 @@ struct Random : Module {
     configOutput(STOREDDIST_OUTPUT, "SRV Variable Dist");
   }
 
-  Clock         frvClock;
-  dsp::RCFilter flucTriFilter;
-  float         frvPhase = 0.F;
-  float         frvLast  = 0.F;
-  float         frvNext  = 0.F;
+  FRV           frv;
   NoisyTriangle noisyTriangle;
 
   void process(const ProcessArgs &args) override {
-    float frvRateCV    = inputs[FLUCRATECV_INPUT].getVoltage();
-    float frvRateParam = params[FLUCRATE_PARAM].getValue();
-    float frvClockFreq = dsp::exp2_taylor5(frvRateParam + (frvRateCV / 2.F));
-
     float triSample = noisyTriangle.generate(args.sampleTime);
-
-    if (frvPhase >= 1.F) {
-      frvLast  = frvNext;
-      frvNext  = triSample;
-      frvPhase = 0.F;
-    }
-
-    frvPhase += frvClockFreq * args.sampleTime;
-
-    float c    = std::cosf(M_PI * frvPhase);
-    float fluc = rescale(c, 1.F, -1.F, frvLast, frvNext);
-
-    outputs[FLUC_OUTPUT].setVoltage(fluc);
-  }
-};
-
-struct FRV {
-  float previousValue = 0.F;
-  float nextValue     = 0.F;
-  float phase         = 0.F;
-
-  void process(float sampleTime, float input, Param rateParam, Port rateCVInput) {
-    float rate      = rateParam.getValue() + (rateCVInput.getVoltage() / 2.F);
-    float clockFreq = dsp::exp2_taylor5(rate);
+    frv.process(args.sampleTime, triSample, &params[FLUCRATE_PARAM], &inputs[FLUCRATECV_INPUT],
+                &outputs[FLUC_OUTPUT], &lights[FLUC_LIGHT]);
   }
 };
 
