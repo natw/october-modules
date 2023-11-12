@@ -64,6 +64,9 @@ struct Random : Module {
   const float triangleFreq = 10.F;  // noisy triangle's frequency
   Clock frvClock;
   dsp::RCFilter flucTriFilter;
+  float frvPhase = 0.F;
+  float frvLast = 0.F;
+  float frvNext = 0.F;
 
   void process(const ProcessArgs& args) override {
     float frvRateCV = inputs[FLUCRATECV_INPUT].getVoltage();
@@ -71,21 +74,24 @@ struct Random : Module {
     float frvClockFreq = dsp::exp2_taylor5(frvRateParam + (frvRateCV / 2.F));
 
     float triSample = generateNoisyTriangle(args);
-    outputs[QUANTEXP_OUTPUT].setVoltage(triSample);
-    if (frvClock.process(args.sampleTime, frvClockFreq)) {
-      /* DEBUG("FRV Sample: %f", triSample); */
-      flucTriFilter.setCutoffFreq(frvClockFreq * 20 / args.sampleRate);
-      flucTriFilter.process(triSample);
+
+    if (frvPhase >= 1.F) {
+      frvLast = frvNext;
+      frvNext = triSample;
+      frvPhase = 0.F;
     }
-    outputs[FLUC_OUTPUT].setVoltage(flucTriFilter.lowpass());
+
+    frvPhase += frvClockFreq * args.sampleTime;
+
+    float c = std::cosf(M_PI * frvPhase);
+    float fluc = rescale(c, 1.F, -1.F, frvLast, frvNext);
+
+    outputs[FLUC_OUTPUT].setVoltage(fluc);
   }
 
   // generate the "noisy triangle" that is sampled to generate more "musical"
   // random numbers this strategy, like everything else about this module, is
   // copied from the Buchla 266
-  //
-  // any constants here were arrived at experimentally
-  // to get a nice looking wave
   float generateNoisyTriangle(const ProcessArgs& args) {
     float redNoise = redFilter.process(random::normal());
     redNoise *= 25.F;
