@@ -4,17 +4,17 @@ Language: Cpp
 BasedOnStyle: Google
 
 IndentWidth: 2
-ColumnLimit: 104
+ColumnLimit: 100
 
-AlignConsecutiveAssignments:
-  Enabled:         true
-  PadOperators:    true
-AlignConsecutiveDeclarations:
-  Enabled:         true
-  PadOperators:    true
-AlignConsecutiveMacros:
-  Enabled:         true
-  PadOperators:    true
+# AlignConsecutiveAssignments:
+#   Enabled:         true
+#   PadOperators:    true
+# AlignConsecutiveDeclarations:
+#   Enabled:         true
+#   PadOperators:    true
+# AlignConsecutiveMacros:
+#   Enabled:         true
+#   PadOperators:    true
 AllowShortEnumsOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortFunctionsOnASingleLine: None

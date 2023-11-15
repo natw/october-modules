@@ -1,6 +1,7 @@
 #include "frv.hpp"
 #include "noisy_triangle.hpp"
 #include "plugin.hpp"
+#include "qrv.hpp"
 
 struct Random : Module {
   enum ParamId {
@@ -38,12 +39,13 @@ struct Random : Module {
     config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 
     configInput(FLUCRATECV_INPUT, "FRV Rate CV");
-    configParam(FLUCRATE_PARAM, std::log2(0.05F), std::log2(50.F), std::log2(5.F), "Rate", "Hz", 2.F);
+    configParam(FLUCRATE_PARAM, std::log2(0.05F), std::log2(50.F), std::log2(5.F), "Rate", "Hz",
+                2.F);
     configOutput(FLUC_OUTPUT, "FRV");
 
     configInput(QUANTTRIGGER_INPUT, "QRV Trigger");
-    configInput(QUANTSTATESCV_INPUT, "QRV States CV");
-    configParam(QUANTSTATES_PARAM, 1.F, 6.F, 1.F, "States");
+    configInput(QUANTSTATESCV_INPUT, "QRV N CV");
+    configParam(QUANTSTATES_PARAM, 1.F, 6.F, 1.F, "N");
     getParamQuantity(QUANTSTATES_PARAM)->snapEnabled = true;
     configOutput(QUANTEXP_OUTPUT, "QRV 2^n");
     configOutput(QUANTLIN_OUTPUT, "QRV n+1");
@@ -55,13 +57,28 @@ struct Random : Module {
     configOutput(STOREDDIST_OUTPUT, "SRV Variable Dist");
   }
 
-  FRV           frv;
   NoisyTriangle noisyTriangle;
+
+  FRV frv;
+  QRV qrv;
 
   void process(const ProcessArgs &args) override {
     float triSample = noisyTriangle.generate(args.sampleTime);
-    frv.process(args.sampleTime, triSample, &params[FLUCRATE_PARAM], &inputs[FLUCRATECV_INPUT],
-                &outputs[FLUC_OUTPUT], &lights[FLUC_LIGHT]);
+
+    // Flucuating Random Voltages
+    frv.process(args.sampleTime, triSample, params[FLUCRATE_PARAM].getValue(),
+                inputs[FLUCRATECV_INPUT].getVoltage());
+    float fluc = frv.getOutput();
+    outputs[FLUC_OUTPUT].setVoltage(fluc);
+    lights[FLUC_LIGHT].setSmoothBrightness(fluc / 10.F, args.sampleTime);
+
+    // Quantized Random Voltages
+    qrv.process(inputs[QUANTTRIGGER_INPUT].getVoltage(), inputs[QUANTSTATESCV_INPUT].getVoltage(),
+                params[QUANTSTATES_PARAM].getValue());
+    outputs[QUANTLIN_OUTPUT].setVoltage(qrv.getNPlusOne());
+    lights[QUANTLIN_LIGHT].setSmoothBrightness(qrv.getNPlusOne() / 10.0, args.sampleTime);
+    outputs[QUANTEXP_OUTPUT].setVoltage(qrv.getTwoNOut());
+    lights[QUANTEXP_LIGHT].setSmoothBrightness(qrv.getTwoNOut() / 10.0, args.sampleTime);
   }
 };
 
@@ -76,8 +93,8 @@ struct RandomWidget : ModuleWidget {
     addChild(createWidget<ScrewSilver>(
         Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-    addParam(
-        createParamCentered<RoundBlackKnob>(mm2px(Vec(34.29, 21.42)), module, Random::FLUCRATE_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(34.29, 21.42)), module,
+                                                 Random::FLUCRATE_PARAM));
     addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(34.29, 64.26)), module,
                                                  Random::QUANTSTATES_PARAM));
     addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(34.29, 107.1)), module,
@@ -94,12 +111,12 @@ struct RandomWidget : ModuleWidget {
     addInput(createInputCentered<BlueBananaPort>(mm2px(Vec(11.43, 107.1)), module,
                                                  Random::STOREDPROBCV_INPUT));
 
-    addOutput(
-        createOutputCentered<BlueBananaPort>(mm2px(Vec(79.897, 21.436)), module, Random::FLUC_OUTPUT));
+    addOutput(createOutputCentered<BlueBananaPort>(mm2px(Vec(79.897, 21.436)), module,
+                                                   Random::FLUC_OUTPUT));
     addOutput(createOutputCentered<BlueBananaPort>(mm2px(Vec(80.01, 42.84)), module,
-                                                   Random::QUANTLIN_OUTPUT));
-    addOutput(createOutputCentered<BlueBananaPort>(mm2px(Vec(80.01, 64.26)), module,
                                                    Random::QUANTEXP_OUTPUT));
+    addOutput(createOutputCentered<BlueBananaPort>(mm2px(Vec(80.01, 64.26)), module,
+                                                   Random::QUANTLIN_OUTPUT));
     addOutput(createOutputCentered<BlueBananaPort>(mm2px(Vec(80.01, 85.68)), module,
                                                    Random::STOREDEVEN_OUTPUT));
     addOutput(createOutputCentered<BlueBananaPort>(mm2px(Vec(80.01, 107.1)), module,
