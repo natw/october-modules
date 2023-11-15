@@ -10,6 +10,7 @@ Checks: |
   -cppcoreguidelines-avoid-magic-numbers,
   -cppcoreguidelines-avoid-const-or-ref-data-members,
   -cppcoreguidelines-avoid-c-arrays,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
   -modernize-avoid-c-arrays,
   -modernize-use-trailing-return-type,
   -readability-magic-numbers,
@@ -18,3 +19,5 @@ Checks: |
   -misc-non-private-member-variables-in-classes,
   -hicpp-avoid-c-arrays,
   -bugprone-easily-swappable-parameters,
+  -google-global-names-in-headers,
+  -google-build-using-namespace,

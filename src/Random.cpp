@@ -81,9 +81,9 @@ struct Random : Module {
     qrv.process(inputs[QUANTTRIGGER_INPUT].getVoltage(), inputs[QUANTSTATESCV_INPUT].getVoltage(),
                 params[QUANTSTATES_PARAM].getValue());
     outputs[QUANTLIN_OUTPUT].setVoltage(qrv.getNPlusOne());
-    lights[QUANTLIN_LIGHT].setSmoothBrightness(qrv.getNPlusOne() / 10.0, args.sampleTime);
+    lights[QUANTLIN_LIGHT].setSmoothBrightness(qrv.getNPlusOne() / 10.F, args.sampleTime);
     outputs[QUANTEXP_OUTPUT].setVoltage(qrv.getTwoNOut());
-    lights[QUANTEXP_LIGHT].setSmoothBrightness(qrv.getTwoNOut() / 10.0, args.sampleTime);
+    lights[QUANTEXP_LIGHT].setSmoothBrightness(qrv.getTwoNOut() / 10.F, args.sampleTime);
 
     // Stored Random Voltages
   }
