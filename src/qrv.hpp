@@ -1,6 +1,5 @@
 #pragma once
-#include <math.h>
-
+#include <cmath>
 #include <rack.hpp>
 #include <random>
 
@@ -24,7 +23,6 @@ using namespace rack;
 struct QRV {
   dsp::SchmittTrigger trigger;
   int lastN{-1};
-  std::random_device rd;
   std::mt19937 gen;
   std::normal_distribution<float> nPlusOneDist;
   float nPlusOneVal = 1.0;
@@ -33,12 +31,11 @@ struct QRV {
   float twoNVal = 1.0;
   float twoNOut = 1.0;
 
-  QRV() {
-    std::mt19937 gen(rd());
+  explicit QRV(std::mt19937 gen_) : gen{gen_} {
   }
 
-  void process(const float &triggerInput, const float &statesCV, const float &statesParam) {
-    int n = static_cast<int>(std::round(math::clamp(statesCV + statesParam, 1.F, 6.F)));
+  void process(const float& triggerInput, const float& statesCV, const float& statesParam) {
+    int n = static_cast<int>(std::round(math::clamp(statesCV + statesParam, 2.F, 6.F)));
     int twoN = 1 << n;
 
     if (trigger.process(triggerInput, 0.1F, 2.F)) {

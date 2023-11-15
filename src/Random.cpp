@@ -2,6 +2,7 @@
 #include "noisy_triangle.hpp"
 #include "plugin.hpp"
 #include "qrv.hpp"
+#include "srv.hpp"
 
 struct Random : Module {
   enum ParamId {
@@ -35,7 +36,10 @@ struct Random : Module {
     LIGHTS_LEN
   };
 
-  Random() {
+  std::random_device rd;
+  std::mt19937 gen = std::mt19937(rd());
+
+  Random() : qrv(gen) {
     config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 
     configInput(FLUCRATECV_INPUT, "FRV Rate CV");
@@ -61,8 +65,9 @@ struct Random : Module {
 
   FRV frv;
   QRV qrv;
+  SRV srv;
 
-  void process(const ProcessArgs &args) override {
+  void process(const ProcessArgs& args) override {
     float triSample = noisyTriangle.generate(args.sampleTime);
 
     // Flucuating Random Voltages
@@ -79,11 +84,13 @@ struct Random : Module {
     lights[QUANTLIN_LIGHT].setSmoothBrightness(qrv.getNPlusOne() / 10.0, args.sampleTime);
     outputs[QUANTEXP_OUTPUT].setVoltage(qrv.getTwoNOut());
     lights[QUANTEXP_LIGHT].setSmoothBrightness(qrv.getTwoNOut() / 10.0, args.sampleTime);
+
+    // Stored Random Voltages
   }
 };
 
 struct RandomWidget : ModuleWidget {
-  explicit RandomWidget(Random *module) {
+  explicit RandomWidget(Random* module) {
     setModule(module);
     setPanel(createPanel(asset::plugin(pluginInstance, "res/Random.svg")));
 
@@ -135,4 +142,4 @@ struct RandomWidget : ModuleWidget {
   }
 };
 
-Model *modelRandom = createModel<Random, RandomWidget>("Random");
+Model* modelRandom = createModel<Random, RandomWidget>("Random");
