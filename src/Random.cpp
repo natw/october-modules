@@ -8,7 +8,7 @@ struct Random : Module {
   enum ParamId {
     FLUCRATE_PARAM,
     QUANTSTATES_PARAM,
-    STOREDPROB_PARAM,
+    STOREDBIAS_PARAM,
     PARAMS_LEN
   };
   enum InputId {
@@ -16,15 +16,15 @@ struct Random : Module {
     QUANTTRIGGER_INPUT,
     QUANTSTATESCV_INPUT,
     STOREDTRIGGER_INPUT,
-    STOREDPROBCV_INPUT,
+    STOREDBIASCV_INPUT,
     INPUTS_LEN
   };
   enum OutputId {
     FLUC_OUTPUT,
     QUANTLIN_OUTPUT,
     QUANTEXP_OUTPUT,
-    STOREDEVEN_OUTPUT,
-    STOREDDIST_OUTPUT,
+    STOREDUNIFORM_OUTPUT,
+    STOREDBIASED_OUTPUT,
     OUTPUTS_LEN
   };
   enum LightId {
@@ -32,7 +32,7 @@ struct Random : Module {
     QUANTLIN_LIGHT,
     QUANTEXP_LIGHT,
     STOREDEVEN_LIGHT,
-    STOREDDIST_LIGHT,
+    STOREDBIASED_LIGHT,
     LIGHTS_LEN
   };
 
@@ -55,10 +55,10 @@ struct Random : Module {
     configOutput(QUANTLIN_OUTPUT, "QRV n+1");
 
     configInput(STOREDTRIGGER_INPUT, "SRV Trigger");
-    configInput(STOREDPROBCV_INPUT, "SRV Probability CV");
-    configParam(STOREDPROB_PARAM, 0.F, 1.F, 0.F, "SRV Probability");
-    configOutput(STOREDEVEN_OUTPUT, "SRV Even Dist");
-    configOutput(STOREDDIST_OUTPUT, "SRV Variable Dist");
+    configInput(STOREDBIASCV_INPUT, "SRV Bias CV");
+    configParam(STOREDBIAS_PARAM, 0.F, 1.F, 0.5F, "SRV Bias");
+    configOutput(STOREDUNIFORM_OUTPUT, "SRV Uniform Distribution");
+    configOutput(STOREDBIASED_OUTPUT, "SRV Biased Distribution");
   }
 
   NoisyTriangle noisyTriangle;
@@ -86,6 +86,12 @@ struct Random : Module {
     lights[QUANTEXP_LIGHT].setSmoothBrightness(qrv.getTwoNOut() / 10.F, args.sampleTime);
 
     // Stored Random Voltages
+    srv.process(inputs[STOREDTRIGGER_INPUT].getVoltage(), inputs[STOREDBIASCV_INPUT].getVoltage(),
+                params[STOREDBIAS_PARAM].getValue());
+    outputs[STOREDUNIFORM_OUTPUT].setVoltage(srv.getUniformOut());
+    lights[STOREDEVEN_LIGHT].setBrightness(srv.getUniformOut() / 10.F);
+    outputs[STOREDBIASED_OUTPUT].setVoltage(srv.getBiasedOut());
+    lights[STOREDBIASED_LIGHT].setBrightness(srv.getBiasedOut());
   }
 };
 
@@ -105,7 +111,7 @@ struct RandomWidget : ModuleWidget {
     addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(34.29, 64.26)), module,
                                                  Random::QUANTSTATES_PARAM));
     addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(34.29, 107.1)), module,
-                                                 Random::STOREDPROB_PARAM));
+                                                 Random::STOREDBIAS_PARAM));
 
     addInput(createInputCentered<BlueBananaPort>(mm2px(Vec(11.43, 21.42)), module,
                                                  Random::FLUCRATECV_INPUT));
@@ -116,7 +122,7 @@ struct RandomWidget : ModuleWidget {
     addInput(createInputCentered<RedBananaPort>(mm2px(Vec(11.43, 85.68)), module,
                                                 Random::STOREDTRIGGER_INPUT));
     addInput(createInputCentered<BlueBananaPort>(mm2px(Vec(11.43, 107.1)), module,
-                                                 Random::STOREDPROBCV_INPUT));
+                                                 Random::STOREDBIASCV_INPUT));
 
     addOutput(createOutputCentered<BlueBananaPort>(mm2px(Vec(79.897, 21.436)), module,
                                                    Random::FLUC_OUTPUT));
@@ -125,9 +131,9 @@ struct RandomWidget : ModuleWidget {
     addOutput(createOutputCentered<BlueBananaPort>(mm2px(Vec(80.01, 64.26)), module,
                                                    Random::QUANTLIN_OUTPUT));
     addOutput(createOutputCentered<BlueBananaPort>(mm2px(Vec(80.01, 85.68)), module,
-                                                   Random::STOREDEVEN_OUTPUT));
+                                                   Random::STOREDUNIFORM_OUTPUT));
     addOutput(createOutputCentered<BlueBananaPort>(mm2px(Vec(80.01, 107.1)), module,
-                                                   Random::STOREDDIST_OUTPUT));
+                                                   Random::STOREDBIASED_OUTPUT));
 
     addChild(createLightCentered<SmallLight<GreenRedLight>>(mm2px(Vec(84.897, 16.42)), module,
                                                             Random::FLUC_LIGHT));
@@ -138,7 +144,7 @@ struct RandomWidget : ModuleWidget {
     addChild(createLightCentered<SmallLight<GreenRedLight>>(mm2px(Vec(85.01, 80.68)), module,
                                                             Random::STOREDEVEN_LIGHT));
     addChild(createLightCentered<SmallLight<GreenRedLight>>(mm2px(Vec(85.01, 102.1)), module,
-                                                            Random::STOREDDIST_LIGHT));
+                                                            Random::STOREDBIASED_LIGHT));
   }
 };
 
