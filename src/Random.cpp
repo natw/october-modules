@@ -39,7 +39,7 @@ struct Random : Module {
   std::random_device rd;
   std::mt19937 gen = std::mt19937(rd());
 
-  Random() : qrv(gen) {
+  Random() : qrv(gen), srv(gen) {
     config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 
     configInput(FLUCRATECV_INPUT, "FRV Rate CV");
