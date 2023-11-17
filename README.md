@@ -74,9 +74,15 @@ Detailing its functionality is beyond the scope of this document.
 
 The Divide By N & Comparator ([NCOM](https://serge-modular.com/serge_eurorack?mod=RS_NCOM_E)) is a comparator module with its output sent through a [Schmitt trigger](https://en.wikipedia.org/wiki/Schmitt_trigger) followed by a clock divider.
 
-When `positive input + sense parameter > negative input` the comparator output is high (10V), and otherwise it is low (0V).
+When `positive input + sense parameter > negative input`, the comparator output is set high (10V), and otherwise it is low (0V).
 Going high will trigger a pulse that is divided by `n`, so the `÷n` output will emit one pulse for every `n` pulses from the comparator.
 
 #### Issues
 
 - The NCOM currently doesn't self-oscillate when the comp out is fed back in, but it should.
+
+### Credits
+
+There are no new ideas under the sun, especially from me.
+These are just crude imitations of designs by Don Buchla, Serge Tcherepnin, Ken Stone, and probably others.
+Panel graphics and banana jacks are original, by me, but the panel aesthetic is straight up theft from [Loudest Warning](http://www.loudestwarning.co.uk/)
