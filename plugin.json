@@ -1,38 +1,51 @@
 {
-  "slug": "October",
-  "name": "October",
+  "slug": "october",
+  "name": "October Modules",
   "version": "2.0.0",
-  "license": "LGPL-3.0-or-later",
+  "license": "GPL-3.0-or-later",
   "brand": "October",
-  "author": "",
-  "authorEmail": "",
-  "authorUrl": "",
-  "pluginUrl": "",
-  "manualUrl": "",
-  "sourceUrl": "",
+  "author": "Nat Williams",
+  "authorEmail": "nat.williams@gmail.com",
+  "authorUrl": "https://github.com/natw",
+  "pluginUrl": "https://github.com/natw/october-modules",
+  "manualUrl": "https://github.com/natw/october-modules",
+  "sourceUrl": "https://github.com/natw/october-modules",
   "donateUrl": "",
   "changelogUrl": "",
   "modules": [
     {
-      "slug": "SSG",
+      "slug": "october-ssg",
       "name": "SSG",
       "description": "Smooth & Stepped Generator",
-      "tags": []
-    },
-    {
-      "slug": "Random",
-      "name": "Random",
-      "description": "Random voltage generator (Source of Uncertainty)",
+      "keywords": ["serge"],
       "tags": [
-        "random"
+        "filter",
+        "low-frequency oscillator",
+        "oscillator",
+        "sample and hold",
+        "slew limiter"
       ]
     },
     {
-      "slug": "NCOM",
+      "slug": "october-random",
+      "name": "Random Voltage Generator",
+      "description": "Random voltage generator (Source of Uncertainty)",
+      "keywords": ["serge"],
+      "tags": [
+        "random",
+        "quantizer",
+        "sample and hold"
+      ]
+    },
+    {
+      "slug": "october-ncom",
       "name": "NCOM",
       "description": "VC Divider and Comparator",
+      "keywords": ["serge", "CGS"],
       "tags": [
-        "utility"
+        "logic",
+        "clock modulator",
+        "oscillator"
       ]
     }
   ]
