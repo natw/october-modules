@@ -86,3 +86,8 @@ Going high will trigger a pulse that is divided by `n`, so the `÷n` output will
 There are no new ideas under the sun, especially from me.
 These are just crude imitations of designs by Don Buchla, Serge Tcherepnin, Ken Stone, and probably others.
 Panel graphics and banana jacks are original, by me, but the panel aesthetic is straight up theft from [Loudest Warning](http://www.loudestwarning.co.uk/)
+
+### License
+
+Code is released under the [GPL 3.0](LICENSE.txt).
+Assets and graphics are licensed [CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/)
