@@ -41,6 +41,9 @@ struct NCOM : Module {
     configOutput(STEPPED_OUTPUT, "Stepped");
   }
 
+  static constexpr float V_SEMITONE = 1.F / 12.F;
+
+  float step = 0.F;
   dsp::SchmittTrigger compTrigger;
   dsp::ClockDivider divider;
   dsp::PulseGenerator compPulse;
@@ -62,11 +65,16 @@ struct NCOM : Module {
     bool gt = posInput > negInput;
     float compOut = gt ? 10.F : 0.F;
 
+    outputs[STEPPED_OUTPUT].setVoltage(step * V_SEMITONE);
+
     bool pulse = compTrigger.process(compOut, 4.F, 2.F);
     if (pulse) {
       compPulse.trigger();
       if (divider.process()) {
         divPulse.trigger();
+        step = 0.F;
+      } else {
+        step += 1.F;
       }
     }
 
