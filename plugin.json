@@ -26,6 +26,14 @@
       "tags": [
         "random"
       ]
+    },
+    {
+      "slug": "NCOM",
+      "name": "NCOM",
+      "description": "VC Divider and Comparator",
+      "tags": [
+        "utility"
+      ]
     }
   ]
 }
