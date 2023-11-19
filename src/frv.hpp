@@ -20,7 +20,7 @@ struct FRV {
     }
 
     phase += clockFreq * sampleTime;
-    float c = std::cosf(M_PI * phase);
+    float c = std::cos(M_PI * phase);
     float fluc = rescale(c, 1.F, -1.F, previousValue, nextValue);
 
     output = fluc;
