@@ -5,6 +5,7 @@ This plugin provides several modules for the [VCV Rack](https://vcvrack.com/) ap
 
 My goal here is to reproduce vaguely faithful renditions of classic Serge and Buchla modules,
 with an eye to ergonomics as well as functionality.
+Plus whatever sounds fun.
 
 In general, I want these modules to behave as much like the originals as possible,
 so if you encounter a situation where they don't, please create an Issue.
@@ -44,6 +45,11 @@ the random numbers that are BEING quantized are chosen with a 'normal' distribut
 One fun thing to note is that while the next note in each sequence is only chosen when a trigger is sent,
 the existing voltages are re-quantized whenever you change `n` (via the knob or CV).
 
+The Stored Random Voltages section ouputs one of 128 voltages even distributed over the module's 0V-10V output range.
+Similar to the QRV, the top output follows a uniform distribution over that entire set,
+and the bottom output follows a bell curve.
+The bias parameter allows you to shift that curve up and down the range, favoring higher or lower voltages.
+
 #### Issues
 
 - I chose to emit the noise section. There are plenty of noise modules for VCV.
@@ -72,7 +78,9 @@ Detailing its functionality is beyond the scope of this document.
 
 ![NCOM](docs/ncom.png)
 
-The Divide By N & Comparator ([NCOM](https://serge-modular.com/serge_eurorack?mod=RS_NCOM_E)) is a comparator module with its output sent through a [Schmitt trigger](https://en.wikipedia.org/wiki/Schmitt_trigger) followed by a clock divider.
+The Divide By N & Comparator ([NCOM](https://serge-modular.com/serge_eurorack?mod=RS_NCOM_E))
+is a comparator module with its output sent through a [Schmitt trigger](https://en.wikipedia.org/wiki/Schmitt_trigger)
+followed by a clock divider.
 
 When `positive input + sense parameter > negative input`, the comparator output is set high (10V), and otherwise it is low (0V).
 Going high will trigger a pulse that is divided by `n`, so the `÷n` output will emit one pulse for every `n` pulses from the comparator.
@@ -85,7 +93,7 @@ Going high will trigger a pulse that is divided by `n`, so the `÷n` output will
 
 There are no new ideas under the sun, especially from me.
 These are just crude imitations of designs by Don Buchla, Serge Tcherepnin, Ken Stone, and probably others.
-Panel graphics and banana jacks are original, by me, but the panel aesthetic is straight up theft from [Loudest Warning](http://www.loudestwarning.co.uk/)
+Panel graphics and banana jack assets are original, by me, but the panel aesthetic is straight up theft from [Loudest Warning](http://www.loudestwarning.co.uk/)
 
 ### License
 
