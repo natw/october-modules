@@ -14,7 +14,7 @@
   "changelogUrl": "",
   "modules": [
     {
-      "slug": "october-ssg",
+      "slug": "ssg",
       "name": "SSG",
       "description": "Smooth & Stepped Generator",
       "keywords": ["serge"],
@@ -27,7 +27,7 @@
       ]
     },
     {
-      "slug": "october-random",
+      "slug": "random",
       "name": "Random Voltage Generator",
       "description": "Random voltage generator (Source of Uncertainty)",
       "keywords": ["serge"],
@@ -38,7 +38,7 @@
       ]
     },
     {
-      "slug": "october-ncom",
+      "slug": "ncom",
       "name": "NCOM",
       "description": "VC Divider and Comparator",
       "keywords": ["serge", "CGS"],
