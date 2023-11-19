@@ -148,4 +148,4 @@ struct RandomWidget : ModuleWidget {
   }
 };
 
-Model* modelRandom = createModel<Random, RandomWidget>("Random");
+Model* modelRandom = createModel<Random, RandomWidget>("random");

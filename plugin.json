@@ -14,7 +14,7 @@
   "changelogUrl": "",
   "modules": [
     {
-      "slug": "ssg",
+      "slug": "SSG",
       "name": "SSG",
       "description": "Smooth & Stepped Generator",
       "keywords": ["serge"],
@@ -38,7 +38,7 @@
       ]
     },
     {
-      "slug": "ncom",
+      "slug": "NCOM",
       "name": "NCOM",
       "description": "VC Divider and Comparator",
       "keywords": ["serge", "CGS"],
