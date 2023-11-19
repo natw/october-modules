@@ -54,7 +54,7 @@ struct NCOM : Module {
     float n_cv = inputs[N_CV_INPUT].getVoltage() * params[N_CV_ATTEN_PARAM].getValue();
     float n = math::clamp(n_param + (n_cv * 2.F), 1.F, 31.F);
 
-    divider.setDivision(static_cast<uint>(n));
+    divider.setDivision(static_cast<unsigned int>(n));
 
     float posInput = inputs[POSITIVE_INPUT].getVoltage() * params[POS_IN_ATTEN_PARAM].getValue();
     float sense = params[SENSE_PARAM].getValue();

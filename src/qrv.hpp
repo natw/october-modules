@@ -74,8 +74,8 @@ struct QRV {
   // quantize `voltage` to the nearest multiple of `stepSize`
   static float quantize(float voltage, float stepSize) {
     float div = voltage / stepSize;
-    float below = std::floorf(div) * stepSize;
-    float above = std::ceilf(div) * stepSize;
+    float below = std::floor(div) * stepSize;
+    float above = std::ceil(div) * stepSize;
 
     float d1 = std::abs(voltage - below);
     float d2 = std::abs(above - voltage);
