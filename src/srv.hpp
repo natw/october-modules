@@ -5,7 +5,7 @@ using namespace rack;
 
 struct SRV {
   dsp::SchmittTrigger trigger;
-  const float stepWidth = 10.F / 128;
+  const float stepWidth = 10.F / 127;
   float uniformOut = 0.F;
   float biasedOut = 0.F;
   std::mt19937 gen;
